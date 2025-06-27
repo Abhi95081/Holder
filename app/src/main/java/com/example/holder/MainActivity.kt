@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.holder.Navigation.AppNavigation
 import com.example.holder.ui.theme.HolderTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,11 +27,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun AppNavigation() {
-    val navController: NavHostController = rememberNavController()
-    NavHost(navController = navController, startDestination = "splash") {
-        composable("splash") { SplashScreen(navController) }
-        composable("home") { HomeScreen() }
-    }
-}
