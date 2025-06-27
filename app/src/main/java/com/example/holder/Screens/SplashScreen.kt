@@ -66,7 +66,7 @@ fun SplashScreen(navController: NavController) {
                 text = "Gallery",
                 fontSize = 28.sp,
                 color = Color(0xFFFFD700), // gold color
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 modifier = Modifier.graphicsLayer(alpha = opacity.value) // Set the alpha
             )
         }
