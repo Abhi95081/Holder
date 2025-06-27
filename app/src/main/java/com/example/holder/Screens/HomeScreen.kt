@@ -1,4 +1,3 @@
-// Updated the MiniImageThumbnail clickable issue using Modifier.clickable wrapping around the Composable.
 
 package com.example.holder
 
