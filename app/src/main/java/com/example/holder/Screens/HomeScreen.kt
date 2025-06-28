@@ -55,6 +55,13 @@ suspend fun saveLastState(context: Context, folder: String, index: Int) {
     }
 }
 
+suspend fun clearLastState(context: Context) {
+    context.dataStore.edit { prefs ->
+        prefs.remove(LAST_FOLDER_KEY)
+        prefs.remove(LAST_INDEX_KEY)
+    }
+}
+
 suspend fun loadLastState(context: Context): Pair<String?, Int?> {
     val prefs = context.dataStore.data.first()
     return prefs[LAST_FOLDER_KEY] to prefs[LAST_INDEX_KEY]
@@ -72,7 +79,7 @@ fun FullScreenImageViewer(
     val pagerState = rememberPagerState(initialPage = startIndex, pageCount = { images.size })
     val scope = rememberCoroutineScope()
 
-    BackHandler(onBack = onClose)
+    BackHandler(onBack = goToFolders)
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -90,15 +97,13 @@ fun FullScreenImageViewer(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = goToFolders) {
-
                     Image(
-                        painter = painterResource(id = R.drawable.folder), // replace with your drawable name
+                        painter = painterResource(id = R.drawable.folder),
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(Color.Red),
                         modifier = Modifier
                             .padding(10.dp)
                             .size(32.dp)
-
                     )
                 }
             }
@@ -109,7 +114,7 @@ fun FullScreenImageViewer(
                     .padding(10.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.photolibrary), // replace with your drawable name
+                    painter = painterResource(id = R.drawable.photolibrary),
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(Color.Red),
                     modifier = Modifier
@@ -178,8 +183,12 @@ fun HomeScreen() {
 
     val isLandscape = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-    BackHandler(enabled = selectedFolder != null && fullScreenIndex == null) {
-        selectedFolder = null
+    BackHandler(enabled = selectedFolder != null) {
+        coroutineScope.launch {
+            clearLastState(context)
+            selectedFolder = null
+            fullScreenIndex = null
+        }
     }
 
     Scaffold(
@@ -189,7 +198,13 @@ fun HomeScreen() {
                     title = { Text(selectedFolder?.name ?: "LeoGuard Gallery") },
                     navigationIcon = {
                         if (selectedFolder != null) {
-                            IconButton(onClick = { selectedFolder = null }) {
+                            IconButton(onClick = {
+                                coroutineScope.launch {
+                                    clearLastState(context)
+                                    selectedFolder = null
+                                    fullScreenIndex = null
+                                }
+                            }) {
                                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Magenta)
                             }
                         }
@@ -241,7 +256,7 @@ fun HomeScreen() {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.folder), // replace with your drawable name
+                                    painter = painterResource(id = R.drawable.folder),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .padding(8.dp)
@@ -276,10 +291,21 @@ fun HomeScreen() {
             FullScreenImageViewer(
                 images = folder.images,
                 startIndex = index,
-                onClose = { fullScreenIndex = null },
+                onClose = {
+                    coroutineScope.launch {
+                        clearLastState(context)
+                        fullScreenIndex = null
+                    }
+                },
                 showThumbs = showThumbs,
                 toggleThumbs = { showThumbs = !showThumbs },
-                goToFolders = { selectedFolder = null; fullScreenIndex = null }
+                goToFolders = {
+                    coroutineScope.launch {
+                        clearLastState(context)
+                        selectedFolder = null
+                        fullScreenIndex = null
+                    }
+                }
             )
         }
     }
