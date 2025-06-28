@@ -106,7 +106,7 @@ fun FullScreenImageViewer(
                 Icon(
                     painter = painterResource(id = R.drawable.folder),
                     contentDescription = "Back to folders",
-                    tint = Color.White,
+                    tint = Color.Red,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -120,7 +120,7 @@ fun FullScreenImageViewer(
                 Icon(
                     painter = painterResource(id = R.drawable.photolibrary),
                     contentDescription = "Toggle thumbnails",
-                    tint = Color.White,
+                    tint = Color.Red,
                     modifier = Modifier.size(32.dp)
                 )
             }
