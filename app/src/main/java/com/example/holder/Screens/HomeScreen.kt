@@ -1,4 +1,3 @@
-// Enhanced Image Gallery Code with Features Requested
 package com.example.holder
 
 import android.Manifest
@@ -6,6 +5,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.ComponentActivity
 import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,6 +43,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import java.util.*
 
 val Context.dataStore by preferencesDataStore("gallery_prefs")
 val LAST_FOLDER_KEY = stringPreferencesKey("last_folder")
@@ -79,7 +80,11 @@ fun FullScreenImageViewer(
     val pagerState = rememberPagerState(initialPage = startIndex, pageCount = { images.size })
     val scope = rememberCoroutineScope()
 
-    BackHandler(onBack = goToFolders)
+    // Completely disable back handler in full screen mode
+    BackHandler(enabled = false) {
+        onClose()
+        // Do nothing - back button is disabled
+    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -90,38 +95,36 @@ fun FullScreenImageViewer(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            Row(
+
+            // Only way to go back is through this icon
+            IconButton(
+                onClick = goToFolders,
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(16.dp)
             ) {
-                IconButton(onClick = goToFolders) {
-                    Image(
-                        painter = painterResource(id = R.drawable.folder),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(Color.Red),
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .size(32.dp)
-                    )
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.folder),
+                    contentDescription = "Back to folders",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
             }
+
             IconButton(
                 onClick = toggleThumbs,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(10.dp)
+                    .padding(16.dp)
             ) {
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.photolibrary),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(Color.Red),
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(32.dp)
+                    contentDescription = "Toggle thumbnails",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
                 )
             }
+
             if (showThumbs) {
                 LazyRow(
                     modifier = Modifier
@@ -140,10 +143,11 @@ fun FullScreenImageViewer(
     }
 }
 
+
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(activity: ComponentActivity? = null) {
     val context = LocalContext.current
     var folders by remember { mutableStateOf<List<ImageFolder>>(emptyList()) }
     var selectedFolder by remember { mutableStateOf<ImageFolder?>(null) }
@@ -183,7 +187,7 @@ fun HomeScreen() {
 
     val isLandscape = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-    BackHandler(enabled = selectedFolder != null) {
+    BackHandler(enabled = selectedFolder != null && fullScreenIndex == null) {
         coroutineScope.launch {
             clearLastState(context)
             selectedFolder = null
@@ -292,10 +296,8 @@ fun HomeScreen() {
                 images = folder.images,
                 startIndex = index,
                 onClose = {
-                    coroutineScope.launch {
-                        clearLastState(context)
-                        fullScreenIndex = null
-                    }
+                    // Close the app when back is pressed twice
+                    activity?.finish()
                 },
                 showThumbs = showThumbs,
                 toggleThumbs = { showThumbs = !showThumbs },
