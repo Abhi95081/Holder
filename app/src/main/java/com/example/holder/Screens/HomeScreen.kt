@@ -1,4 +1,4 @@
-
+// Enhanced Image Gallery Code with Features Requested
 package com.example.holder
 
 import android.Manifest
@@ -22,8 +22,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,21 +30,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.preferencesDataStore
 
 val Context.dataStore by preferencesDataStore("gallery_prefs")
@@ -65,7 +61,14 @@ suspend fun loadLastState(context: Context): Pair<String?, Int?> {
 }
 
 @Composable
-fun FullScreenImageViewer(images: List<ImageData>, startIndex: Int, onClose: () -> Unit, showThumbs: Boolean, toggleThumbs: () -> Unit) {
+fun FullScreenImageViewer(
+    images: List<ImageData>,
+    startIndex: Int,
+    onClose: () -> Unit,
+    showThumbs: Boolean,
+    toggleThumbs: () -> Unit,
+    goToFolders: () -> Unit
+) {
     val pagerState = rememberPagerState(initialPage = startIndex, pageCount = { images.size })
     val scope = rememberCoroutineScope()
 
@@ -80,15 +83,45 @@ fun FullScreenImageViewer(images: List<ImageData>, startIndex: Int, onClose: () 
                     modifier = Modifier.fillMaxSize()
                 )
             }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = goToFolders) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.folder), // replace with your drawable name
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(Color.Red),
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(32.dp)
+
+                    )
+                }
+            }
             IconButton(
                 onClick = toggleThumbs,
-                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp)
             ) {
-                Icon(Icons.Default.Info, contentDescription = "Toggle Thumbnails")
+                Image(
+                    painter = painterResource(id = R.drawable.photolibrary), // replace with your drawable name
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(Color.Red),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(32.dp)
+                )
             }
             if (showThumbs) {
                 LazyRow(
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(8.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(images.size) { i ->
@@ -151,20 +184,13 @@ fun HomeScreen() {
 
     Scaffold(
         topBar = {
-            if (!isLandscape || fullScreenIndex == null) {
+            if (!isLandscape && fullScreenIndex == null) {
                 TopAppBar(
                     title = { Text(selectedFolder?.name ?: "LeoGuard Gallery") },
                     navigationIcon = {
-                        if (selectedFolder != null && fullScreenIndex == null) {
-                            IconButton(onClick = { selectedFolder = null }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                            }
-                        }
-                    },
-                    actions = {
                         if (selectedFolder != null) {
                             IconButton(onClick = { selectedFolder = null }) {
-                                Icon(Icons.Default.ExitToApp, contentDescription = "Go to Folders")
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Magenta)
                             }
                         }
                     }
@@ -252,7 +278,8 @@ fun HomeScreen() {
                 startIndex = index,
                 onClose = { fullScreenIndex = null },
                 showThumbs = showThumbs,
-                toggleThumbs = { showThumbs = !showThumbs }
+                toggleThumbs = { showThumbs = !showThumbs },
+                goToFolders = { selectedFolder = null; fullScreenIndex = null }
             )
         }
     }
@@ -301,7 +328,11 @@ fun ImageThumbnail(image: ImageData, onClick: () -> Unit) {
     AsyncImage(
         model = image.uri,
         contentDescription = null,
-        modifier = Modifier.padding(4.dp).fillMaxWidth().aspectRatio(1f).clickable { onClick() }
+        modifier = Modifier
+            .padding(4.dp)
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clickable { onClick() }
     )
 }
 
@@ -311,7 +342,9 @@ fun MiniImageThumbnail(image: ImageData, onClick: () -> Unit = {}) {
         AsyncImage(
             model = image.uri,
             contentDescription = null,
-            modifier = Modifier.size(80.dp).padding(4.dp)
+            modifier = Modifier
+                .size(100.dp)
+                .padding(2.dp)
         )
     }
 }
