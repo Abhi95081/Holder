@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.launch
@@ -199,7 +200,7 @@ fun HomeScreen(activity: ComponentActivity? = null) {
         topBar = {
             if (!isLandscape && fullScreenIndex == null) {
                 TopAppBar(
-                    title = { Text(selectedFolder?.name ?: "LeoGuard Gallery") },
+                    title = { Text(selectedFolder?.name ?: "AbhiGuard Gallery") },
                     navigationIcon = {
                         if (selectedFolder != null) {
                             IconButton(onClick = {
@@ -351,28 +352,94 @@ fun loadImageFolders(context: Context): List<ImageFolder> {
 data class ImageFolder(val name: String, val images: List<ImageData>)
 data class ImageData(val uri: android.net.Uri, val name: String)
 
-@Composable
-fun ImageThumbnail(image: ImageData, onClick: () -> Unit) {
-    AsyncImage(
-        model = image.uri,
-        contentDescription = null,
-        modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .clickable { onClick() }
-    )
-}
+//@Composable
+//fun ImageThumbnail(image: ImageData, onClick: () -> Unit) {
+//    AsyncImage(
+//        model = image.uri,
+//        contentDescription = null,
+//        modifier = Modifier
+//            .padding(4.dp)
+//            .fillMaxWidth()
+//            .aspectRatio(1f)
+//            .clickable { onClick() }
+//    )
+//}
+//
+//@Composable
+//fun MiniImageThumbnail(image: ImageData, onClick: () -> Unit = {}) {
+//    Box(modifier = Modifier.clickable { onClick() }) {
+//        AsyncImage(
+//            model = image.uri,
+//            contentDescription = null,
+//            modifier = Modifier
+//                .size(100.dp)
+//                .padding(2.dp)
+//        )
+//    }
+//}
 
 @Composable
-fun MiniImageThumbnail(image: ImageData, onClick: () -> Unit = {}) {
-    Box(modifier = Modifier.clickable { onClick() }) {
+fun ImageThumbnail(image: ImageData, onClick: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        modifier = Modifier
+            .padding(6.dp)
+            .clickable { onClick() }
+    ) {
         AsyncImage(
             model = image.uri,
             contentDescription = null,
             modifier = Modifier
-                .size(100.dp)
-                .padding(2.dp)
+                .fillMaxWidth()
+                .aspectRatio(1f)
         )
+    }
+}
+
+@Composable
+fun MiniImageThumbnail(image: ImageData, onClick: () -> Unit = {}) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        modifier = Modifier
+            .padding(4.dp)
+            .size(100.dp)
+            .clickable { onClick() }
+    ) {
+        AsyncImage(
+            model = image.uri,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun FolderRow(folder: ImageFolder, onClick: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.folder),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(36.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = folder.name,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
     }
 }
