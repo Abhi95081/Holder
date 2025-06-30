@@ -200,7 +200,7 @@ fun HomeScreen(activity: ComponentActivity? = null) {
         topBar = {
             if (!isLandscape && fullScreenIndex == null) {
                 TopAppBar(
-                    title = { Text(selectedFolder?.name ?: "AbhiGuard Gallery") },
+                    title = { Text(selectedFolder?.name ?: "LeoGuard Gallery") },
                     navigationIcon = {
                         if (selectedFolder != null) {
                             IconButton(onClick = {
