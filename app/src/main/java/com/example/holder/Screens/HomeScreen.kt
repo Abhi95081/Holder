@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import androidx.activity.ComponentActivity
 import android.provider.MediaStore
@@ -168,8 +169,7 @@ fun HomeScreen(activity: ComponentActivity? = null) {
     LaunchedEffect(Unit) {
         val granted = ContextCompat.checkSelfPermission(
             context, Manifest.permission.READ_MEDIA_IMAGES
-        ) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(
+        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
                     context, Manifest.permission.READ_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED
 
@@ -186,7 +186,7 @@ fun HomeScreen(activity: ComponentActivity? = null) {
         }
     }
 
-    val isLandscape = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     BackHandler(enabled = selectedFolder != null && fullScreenIndex == null) {
         coroutineScope.launch {
@@ -218,6 +218,7 @@ fun HomeScreen(activity: ComponentActivity? = null) {
             }
         },
         containerColor = Color(0xFFF0F0F0)
+
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             if (permissionGranted) {
