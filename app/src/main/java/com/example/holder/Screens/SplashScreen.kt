@@ -47,7 +47,7 @@ fun SplashScreen(navController: NavController) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             // Apply the opacity to the Image
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.leo),
                 contentDescription = "LeoGuard Logo",
                 modifier = Modifier
                     .height(120.dp)
@@ -56,16 +56,16 @@ fun SplashScreen(navController: NavController) {
             )
             // Apply the opacity to the Text
             Text(
-                text = "AbhiGuard",
+                text = "LeoGuard",
                 fontSize = 32.sp,
-                color = Color(0xFFF44336), // gold color- 0xFFFFD700
+                color = Color(0xFFFFD700), // gold color-
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.graphicsLayer(alpha = opacity.value) // Set the alpha
             )
             Text(
                 text = "Gallery",
                 fontSize = 28.sp,
-                color = Color(0xFFFF5722), // gold color - 0xFFFFD700
+                color = Color(0xFFFFD700), // gold color -
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.graphicsLayer(alpha = opacity.value) // Set the alpha
             )
